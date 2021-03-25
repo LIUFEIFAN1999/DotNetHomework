@@ -8,91 +8,81 @@ namespace Homework03
 {
     abstract class Shape
     {
-        protected double length;
-        protected double width;
-        protected double area;
-        abstract public double GetArea();
+        abstract public double Area { get; }
 
-        public double Length
-        {
-            get;set;
-        }
-        public double Width
-        {
-            get;set;
-        }
     }
 
     class Rectangle : Shape {
+        protected double length;
+        protected double width;
         public Rectangle(double length, double width)
         {
             this.length = length;
             this.width = width;
         }
-        public override double GetArea()
+        public override double Area
         {
-            if (length > 0 && width > 0)
+            get
             {
-                area = width * length;
-                return area;
-            }
-            else
-            {
-                return -1;
+                if(length > 0 && width > 0)
+                {
+                    return length * width;
+                }
+                else
+                {
+                    throw new InvalidOperationException("矩形边长有误");
+                }
             }
         }
     }
 
-    class Square : Shape
+    class Square : Rectangle
     {
         private double side;
-        public Square(double side)
+        public Square(double side): base(side, side)
         {
             this.side = side;
-            length = width = side;
         }
-        public double Side
+        public override double Area
         {
-            set
-            {
-                width = length = side = value;
-            }
             get
             {
-                return side;
-            }
-        }
-        public override double GetArea()
-        {
-            if (side > 0 && length == width)
-            {
-                area = side * side;
-                return area;
-            }
-            else
-            {
-                return -1;
+                if (side > 0)
+                {
+                    return side * side;
+                }
+                else
+                {
+                    throw new InvalidOperationException("正方形边长有误");
+                }
             }
         }
     }
 
     class Triangle : Shape
     {
-        public Triangle(double length, double width)
+        private double a;
+        private double b;
+        private double c;
+        public Triangle(double a, double b, double c)
         {
-            this.length = length;
-            this.width = width;
+            this.a = a;
+            this.b = b;
+            this.c = c;
         }
-        public override double GetArea()
+        public override double Area
         {
-            if (length > 0 && width > 0)
+            get
             {
-                area = (width * length) / 2;
-                return area;
-            }
-            else
-            {
-                return -1;
+                if(a>0 && b>0 && c>0 && a+b>c && a+c>b && b+c>a)
+                {
+                    double p = (a + b + c) / 2;
+                    return Math.Sqrt(p * (p - a) * (p - b) * (p - c));
+                }
+                else
+                {
+                    throw new InvalidOperationException("三角形边长有误");
+                }
             }
         }
     }
@@ -100,26 +90,14 @@ namespace Homework03
     class Factory
     {
         //创建矩形和三角形对象
-        public static Shape Manufacture(string shapeName, double length, double width)
+        public static Shape Manufacture(string shapeName, params double[] sides)
         {
             switch (shapeName)
             {
-                case "Rectangle": return new Rectangle(length, width);
-                case "Triangle": return new Triangle(length, width);
-                default: return null;
-            }
-        }
-        //overload
-        //创建正方形
-        public static Shape Manufacture(string shapeName, double side)
-        {
-            if (shapeName == "Square")
-            {
-                return new Square(side);
-            }
-            else
-            {
-                return null;
+                case "Rectangle": return new Rectangle(sides[0], sides[1]);
+                case "Square": return new Square(sides[0]);
+                case "Triangle": return new Triangle(sides[0], sides[1], sides[2]);
+                default: throw new NullReferenceException("形状不存在");
             }
         }
     }
@@ -130,39 +108,17 @@ namespace Homework03
             string[] shapes = {"Rectangle","Square","Triangle","Illegal"};
             double[] sides = {1, 2, 3, 4, 5, 1.5, 2.5, 3.5 };
             string _shape;
-            double _length, _width,_side;
+            double a, b, c;
             double totalArea = 0;
             Shape shape;
             for(int index = 1; index <= 10; index++)
             {
                 _shape = shapes[index % 3]; //0矩形、1正方形、2三角形
-                _length = _side = sides[index % 8]; //选取长、边长
-                _width = sides[(index+1) % 8]; //选取宽
-                try
-                {
-                    if (_shape == "Square")
-                    {
-                        shape = Factory.Manufacture(_shape, _side);
-                    }
-                    else
-                    {
-                        shape = Factory.Manufacture(_shape, _length, _width);
-                    }
-                    if (shape.GetArea() == -1)
-                    {
-                        Console.WriteLine($"第{index}个形状不合法！");
-                        Environment.Exit(0);
-                    }
-                    totalArea += shape.GetArea();
-                }
-                catch (NullReferenceException e)
-                {
-                    Console.WriteLine($"形状有误:{e.Message}");
-                    Environment.Exit(0);
-                }
-                
+                a = b = c = sides[index % 8];
+                shape = Factory.Manufacture(_shape, a, b, c);
+                totalArea += shape.Area;
             }
-            Console.WriteLine($"十个形状的总面积：{totalArea}");
+            Console.WriteLine($"Total Area：{totalArea}");
         }
     }
 }
