@@ -15,24 +15,22 @@ using System.Threading.Tasks;
  */
 namespace OrderAddXML
 {
+    [Serializable]
     public class Customer
     {
         private string id;
         private string name;
         private string phone;
-        private string address;
 
         public Customer() { }
-        public Customer(string id, string name, string phone, string address)
+        public Customer(string id, string name, string phone)
         {
             this.id = id;
             this.name = name;
             this.phone = phone;
-            this.address = address;
         }
         public string Name { get => name; set => name = value; }
         public string Phone { get => phone; set => phone = value; }
-        public string Address { get => address; set => address = value; }
         public string Id { get => id; set => id = value; }
 
         public override bool Equals(object obj)
@@ -40,8 +38,7 @@ namespace OrderAddXML
             return obj is Customer customer &&
                    id == customer.id &&
                    name == customer.name &&
-                   phone == customer.phone &&
-                   address == customer.address;
+                   phone == customer.phone;
         }
 
         public override int GetHashCode()
@@ -50,16 +47,16 @@ namespace OrderAddXML
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(id);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(name);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(phone);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(address);
             return hashCode;
         }
 
         public override string ToString()
         {
-            return $"\t[Customer]\n\tname:{name}\tphone:{phone}\taddress:{address}\tid:{id}";
+            return $"\t[Customer]\n\tname:{name}\tphone:{phone}\tid:{id}";
         }
     }
 
+    [Serializable]
     public class Goods
     {
         private string name;
@@ -105,21 +102,20 @@ namespace OrderAddXML
             return $"\t\t[Goods]\n\t\tname:{name}\tprice:{price}\tweight:{weight}\tdescription:{description}";
         }
     }
+
+    [Serializable]
     public class OrderDetails
     {
-        private string id;
         private Goods goods;
         private int count;
 
         public OrderDetails() { }
-        public OrderDetails(string id, Goods goods, int count)
+        public OrderDetails(Goods goods, int count)
         {
-            this.id = id;
-            this.Goods = goods;
+            this.goods = goods;
             this.count = count;
         }
 
-        public string Id { get => id; set => id = value; }
         public int Count { get => count; set => count = value; }
         public double Amount { get => goods.Price * count; }
         public Goods Goods { get => goods; set => goods = value; }
@@ -127,15 +123,13 @@ namespace OrderAddXML
         public override bool Equals(object obj)
         {
             return obj is OrderDetails details &&
-                   id == details.id &&
-                   EqualityComparer<Goods>.Default.Equals(goods, details.goods) &&
-                   count == details.count;
+                   details != null &&
+                   EqualityComparer<Goods>.Default.Equals(goods, details.goods);
         }
 
         public override int GetHashCode()
         {
             int hashCode = -720357890;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(id);
             hashCode = hashCode * -1521134295 + EqualityComparer<Goods>.Default.GetHashCode(goods);
             hashCode = hashCode * -1521134295 + count.GetHashCode();
             return hashCode;
@@ -143,24 +137,29 @@ namespace OrderAddXML
 
         public override string ToString()
         {
-            return $"\t[OrderDetails]\n\tid:{id}\n{goods}\tcount:{count}\tamount:{Amount}";
+            return $"\t[OrderDetails]\n{goods}\tcount:{count}\tamount:{Amount}";
         }
     }
+    
+    [Serializable]
     public class Order : IComparable
     {
         private string id;
         private Customer customer;
+        private string address;
         private List<OrderDetails> itemList = new List<OrderDetails>();
 
         public Order() { }
-        public Order(string id, Customer customer, OrderDetails item)
+        public Order(string id, Customer customer, string address, OrderDetails item)
         {
             this.id = id;
             this.customer = customer;
+            this.address = address;
             itemList.Add(item);
         }
         public string Id { get => id; set => id = value; }
         public Customer Customer { get => customer; set => customer = value; }
+        public string Address { get => address; set => address = value; }
         public List<OrderDetails> ItemList { get => itemList; set => itemList = value; }
         public double Amount
         {
@@ -175,27 +174,10 @@ namespace OrderAddXML
             }
         }
 
-        public bool ItemsEquals(List<OrderDetails> items)
-        {
-            if(itemList.Count != items.Count)
-            {
-                return false;
-            }
-            for(int index = 0; index < items.Count; index++)
-            {
-                if (! itemList[index].Equals(items[index]))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
         public override bool Equals(object obj)
         {
             return obj is Order order &&
-                   id == order.id &&
-                   EqualityComparer<Customer>.Default.Equals(customer, order.customer) &&
-                   ItemsEquals(order.ItemList);
+                   order != null & id == order.id;
         }
 
         public override int GetHashCode()
@@ -234,71 +216,81 @@ namespace OrderAddXML
         public List<Order> OrderList { get => orderList; }
 
         public OrderService() { }
+
         public void Add(Order order)
         {
-            if(order == null)
+            if(orderList.Exists(o => o.Id == order.Id))
             {
-                throw new ArgumentException("添加失败：订单为空");
+                throw new OrderException("添加失败：订单已存在");
             }
             orderList.Add(order);
         }
 
-        public void Delete(Order order)
+        public void Delete(string orderId)
         {
-            if(!orderList.Remove(order))
+            if(orderList.RemoveAll(order => order.Id == orderId) == 0)
             {
-                throw new ArgumentException("删除失败：订单不存在");
+                throw new OrderException("删除失败：订单不存在");
             }
         }
 
-        public void Modify_AddItem(Order order, OrderDetails item)
+        public void Modify_AddItem(string orderId, OrderDetails item)
         {
-            int orderIndex = orderList.IndexOf(order);
+            int orderIndex = orderList.FindIndex(order => order.Id == orderId);
             if(orderIndex == -1)
             {
-                throw new ArgumentException("修改失败：订单不存在");
+                throw new OrderException("添加失败：订单不存在");
             }
-            if(item == null)
+            int itemIndex = orderList[orderIndex].ItemList.FindIndex(_item => _item.Goods.Equals(item.Goods));
+            if(itemIndex == -1)
             {
-                throw new ArgumentException("修改失败：订单明细为空");
+                orderList[orderIndex].ItemList.Add(item);
             }
-            orderList[orderIndex].ItemList.Add(item);
+            else
+            {
+                orderList[orderIndex].ItemList[itemIndex].Count += item.Count;            
+            }
         }
 
-        public void Modify_DeleteItem(Order order, OrderDetails item)
+        public void Modify_DeleteItem(string orderId, OrderDetails item)
         {
-            int orderIndex = orderList.IndexOf(order);
+            int orderIndex = orderList.FindIndex(order => order.Id == orderId);
             if (orderIndex == -1)
             {
-                throw new ArgumentException("修改失败：订单不存在");
+                throw new OrderException("删除失败：订单不存在");
             }
-            if(item == null)
+            if (orderList[orderIndex].ItemList.RemoveAll(items => items.Equals(item)) == 0)
             {
-                throw new ArgumentException("修改失败：订单明细为空");
-            }
-            if (!orderList[orderIndex].ItemList.Remove(item))
-            {
-                throw new ArgumentException("修改失败：订单明细不存在");
+                throw new OrderException("删除失败：订单明细不存在");
             }
         }
-        public List<Order> QueryById(string id)
+
+        public void ModifyAddress(string orderId, string newAddress)
         {
-            var query = orderList.Where(order => order.Id == id).OrderBy(order => order.Amount);
-            return query.ToList();
+            int orderIndex = orderList.FindIndex(order => order.Id == orderId);
+            if (orderIndex == -1)
+            {
+                throw new OrderException("修改失败：订单不存在");
+            }
+            orderList[orderIndex].Address = newAddress;
+        }
+
+        public List<Order> QueryAll()
+        {
+            return orderList;
+        }
+        public Order QueryById(string id)
+        {
+            var query = orderList.Where(order => order.Id == id).FirstOrDefault();
+            return query;
         }
         public List<Order> QueryByName(string name)
         {
-            List<Order> orders = new List<Order>();
-            foreach (Order order in orderList)
-            {
-                var query = order.ItemList.Where(item => item.Goods.Name == name);
-                if (query.Count() != 0)
-                {
-                    orders.Add(order);
-                }
-            }
-            orders.Sort((order1, order2) => (int)(order1.Amount - order2.Amount));
-            return orders;
+            var query = orderList.Where(order => order.ItemList.Any(
+                item => item.Goods.Name == name
+                )
+            );
+            return query.ToList();
         }
         public List<Order> QueryByCustomer(Customer customer)
         {
@@ -321,10 +313,10 @@ namespace OrderAddXML
             orderList.Sort(comparison);
         }
 
-        public void Export()
+        public void Export(string fileName)
         {
             XmlSerializer xmlSerializier = new XmlSerializer(typeof(List<Order>));
-            using (FileStream fs = new FileStream("orderList.xml", FileMode.Create))
+            using (FileStream fs = new FileStream(fileName, FileMode.Create))
             {
                 xmlSerializier.Serialize(fs, orderList);
             }
@@ -336,25 +328,30 @@ namespace OrderAddXML
             using (FileStream fs = new FileStream(filePath, FileMode.Open))
             {
                 List<Order> orders = (List<Order>)xmlSerializier.Deserialize(fs);
-                orderList = orderList.Concat(orders).ToList();
+                foreach(var order in orders)
+                {
+                    try
+                    {
+                        Add(order);
+                    }
+                    catch (OrderException e) { }
+                }
             }
         }
+    }
+
+    public class OrderException : ApplicationException
+    {
+        public OrderException(string message) : base(message) { }
     }
     class Program
     {
         static void Main(string[] args)
         {
-            Customer customer1 = new Customer("00001", "LiuFeifan", "18812345678", "WuHan");
-            Customer customer2 = new Customer("00002", "Liuxia", "18202939333", "Nanchang");
+            Customer customer1 = new Customer("00001", "LiuFeifan", "18812345678");
             Goods pc = new Goods("computer", "Lenovo 16G 512G i5", 4325.99, 1000);
-            Goods guitar = new Goods("guitar", "Mesopotamia S200 41", 2680, 2000);
-            Goods shirt = new Goods("T-Shirt", "Li-Ning 2021", 129.98, 50);
-            Goods bag = new Goods("handbag", "Dior Latest", 10000, 500);
-            OrderDetails item0 = new OrderDetails("00000", pc, 1);
-            OrderDetails item1 = new OrderDetails("00001", guitar, 2);
-            OrderDetails item2 = new OrderDetails("00002", shirt, 3);
-            Order order0 = new Order("00000", customer1, item0);
-            Order order1 = new Order("00001", customer2, item2);
+            OrderDetails item0 = new OrderDetails(pc, 1);
+            Order order0 = new Order("00000", customer1, "Wuhan", item0);
             OrderService orderService = new OrderService();
             orderService.Add(order0);
             /*orderService.Modify_AddItem(order0, item1);
@@ -369,7 +366,7 @@ namespace OrderAddXML
             {
                 Console.WriteLine(myOrder);
             }*/
-            //orderService.Export();
+            orderService.Export("orderList.xml");
         }
     }
 }

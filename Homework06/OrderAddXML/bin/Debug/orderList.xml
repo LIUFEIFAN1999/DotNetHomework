@@ -5,12 +5,11 @@
     <Customer>
       <Name>LiuFeifan</Name>
       <Phone>18812345678</Phone>
-      <Address>WuHan</Address>
       <Id>00001</Id>
     </Customer>
+    <Address>Wuhan</Address>
     <ItemList>
       <OrderDetails>
-        <Id>00000</Id>
         <Count>1</Count>
         <Goods>
           <Name>computer</Name>
