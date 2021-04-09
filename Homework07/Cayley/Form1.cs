@@ -18,13 +18,13 @@ namespace Cayley
         }
 
         private Graphics graphics;
-        private double th1;
-        private double th2;
-        private double per1;
-        private double per2;
-        private int leng;
-        private int n;
-        Pen pen;
+        private double th1 = 20 * Math.PI / 180;
+        private double th2 = 30 * Math.PI / 180;
+        private double per1 = 0.7;
+        private double per2 = 0.6;
+        private int leng = 100;
+        private int n = 10;
+        Pen pen = Pens.Red;
 
         public void DrawCayleyTree(int n, double x0, double y0, double leng, double th)
         {
@@ -39,12 +39,7 @@ namespace Cayley
             DrawCayleyTree(n - 1, x1, y1, per2 * leng, th - th2);
         }
 
-        public void DrawLine(double x0, double y0, double x1, double y1)
-        {
-            graphics.DrawLine(pen, (int)x0, (int)y0, (int)x1, (int)y1);
-        }
-
-        private void button1_Click(object sender, EventArgs e)
+        public void PaintTree()
         {
             try
             {
@@ -59,11 +54,11 @@ namespace Cayley
             {
                 throw new ArgumentNullException($"{ex.Message} 参数不完整");
             }
-            catch(FormatException ex)
+            catch (FormatException ex)
             {
                 throw new FormatException($"{ex.Message} 参数格式错误");
             }
-            
+
             string color = comboBox1.Text;
             switch (color)
             {
@@ -77,9 +72,30 @@ namespace Cayley
                 case "Yellow": pen = Pens.Yellow; break;
                 default: pen = Pens.Green; break;
             }
-            if (graphics == null) graphics = CreateGraphics();
+            graphics = panel1.CreateGraphics();
             graphics.Clear(BackColor);
-            DrawCayleyTree(n, 200, 310, leng, - Math.PI / 2);
+            DrawCayleyTree(n, panel1.Width / 2, panel1.Height / 1.5, leng, -Math.PI / 2);
+        }
+        public void DrawLine(double x0, double y0, double x1, double y1)
+        {
+            graphics.DrawLine(pen, (int)x0, (int)y0, (int)x1, (int)y1);
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            graphics = panel1.CreateGraphics();
+            graphics.Clear(BackColor);
+            DrawCayleyTree(n, panel1.Width / 2, panel1.Height / 1.5, leng, -Math.PI / 2);
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            PaintTree();
+        }
+        private void panel1_Click(object sender, EventArgs e)
+        {
+            graphics = panel1.CreateGraphics();
+            graphics.Clear(BackColor);
+            DrawCayleyTree(n, MousePosition.X, MousePosition.Y, leng, -Math.PI / 2);
         }
     }
 }
