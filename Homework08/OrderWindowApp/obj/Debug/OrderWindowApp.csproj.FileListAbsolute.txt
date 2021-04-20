@@ -1,0 +1,16 @@
+C:\Users\19352\source\repos\DotNetHomework1\Homework08\OrderWindowApp\bin\Debug\OrderWindowApp.exe.config
+C:\Users\19352\source\repos\DotNetHomework1\Homework08\OrderWindowApp\bin\Debug\OrderWindowApp.exe
+C:\Users\19352\source\repos\DotNetHomework1\Homework08\OrderWindowApp\bin\Debug\OrderWindowApp.pdb
+C:\Users\19352\source\repos\DotNetHomework1\Homework08\OrderWindowApp\obj\Debug\OrderWindowApp.Properties.Resources.resources
+C:\Users\19352\source\repos\DotNetHomework1\Homework08\OrderWindowApp\obj\Debug\OrderWindowApp.csproj.GenerateResource.cache
+C:\Users\19352\source\repos\DotNetHomework1\Homework08\OrderWindowApp\obj\Debug\OrderWindowApp.csproj.CoreCompileInputs.cache
+C:\Users\19352\source\repos\DotNetHomework1\Homework08\OrderWindowApp\obj\Debug\OrderWindowApp.exe
+C:\Users\19352\source\repos\DotNetHomework1\Homework08\OrderWindowApp\obj\Debug\OrderWindowApp.pdb
+C:\Users\19352\source\repos\DotNetHomework1\Homework08\OrderWindowApp\bin\Debug\Order.exe
+C:\Users\19352\source\repos\DotNetHomework1\Homework08\OrderWindowApp\bin\Debug\Order.pdb
+C:\Users\19352\source\repos\DotNetHomework1\Homework08\OrderWindowApp\bin\Debug\Order.exe.config
+C:\Users\19352\source\repos\DotNetHomework1\Homework08\OrderWindowApp\obj\Debug\OrderWindowApp.csprojAssemblyReference.cache
+C:\Users\19352\source\repos\DotNetHomework1\Homework08\OrderWindowApp\obj\Debug\OrderWindowApp.csproj.CopyComplete
+C:\Users\19352\source\repos\DotNetHomework1\Homework08\OrderWindowApp\obj\Debug\OrderWindowApp.Form_add_item.resources
+C:\Users\19352\source\repos\DotNetHomework1\Homework08\OrderWindowApp\obj\Debug\OrderWindowApp.Form_items.resources
+C:\Users\19352\source\repos\DotNetHomework1\Homework08\OrderWindowApp\obj\Debug\OrderWindowApp.Form_orderList.resources
