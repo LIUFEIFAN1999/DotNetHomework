@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -12,6 +13,7 @@ namespace Cayley
 {
     public partial class Form1 : Form
     {
+        Thread thread = null;
         private Graphics graphics;
         public int Th1 { get; set; } = 20;
         public int Th2 { get; set; } = 30;
@@ -54,19 +56,21 @@ namespace Cayley
 
         public void PaintTree()
         {
+            
+            if(thread != null)
+            {
+                thread.Abort();
+            }
             graphics = panel1.CreateGraphics();
             graphics.Clear(BackColor);
-            Task.Run(() =>
-            {
-                DrawCayleyTree(N, panel1.Width / 2, panel1.Height / 1.5, Leng, -Math.PI / 2);
-            });
+            thread = new Thread(()=> DrawCayleyTree(N, panel1.Width / 2, panel1.Height / 1.5, Leng, -Math.PI / 2));
+            thread.Start();
         }
 
 
         private void Form1_Resize(object sender, EventArgs e)
         {
             PaintTree();
-            //多个线程都在使用一个graphics对象，异常
         }
         private void button1_Click(object sender, EventArgs e)
         {
