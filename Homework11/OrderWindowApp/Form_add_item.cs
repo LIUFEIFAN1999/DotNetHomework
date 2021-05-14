@@ -18,7 +18,7 @@ namespace OrderWindowApp
     {
         public List<OrderDetails> itemList = new List<OrderDetails>();
         public OrderService orderService = new OrderService();
-        List<Goods> goodsList = new List<Goods>();
+        public GoodService goodService = new GoodService();
 
         public int Apple { get; set; } = 1;
         public int Banana { get; set; } = 1;
@@ -70,13 +70,9 @@ namespace OrderWindowApp
         {
             string name = ((Button)sender).Name.Split('_')[1];
             string propertyName = name.Substring(0, 1).ToUpper() + name.Substring(1);
-            using (var db = new OrderContext())
-            {
-                Goods selectedGoods = orderService.queryGoods(name);
-                int count = (int)this.GetType().GetProperty(propertyName).GetValue(this);
-                itemList.Add(new OrderDetails(count,selectedGoods));
-            }
-            
+            Goods selectedGoods = goodService.QueryGoods(name);
+            int count = (int)this.GetType().GetProperty(propertyName).GetValue(this);
+            itemList.Add(new OrderDetails(count,selectedGoods));
             MessageBox.Show("已加入购物车");
         }
 

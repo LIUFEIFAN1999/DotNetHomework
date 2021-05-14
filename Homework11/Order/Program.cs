@@ -125,7 +125,7 @@ namespace OrderManagement
         }
 
         public int Count { get => count; set => count = value; }
-        public double Amount { get => goods.Price * count; }
+        public double Amount { get { return goods!=null? goods.Price* count:0; } }
         public int GoodsId { get; set; }
         public Goods Goods { get => goods; set => goods = value; }
         [Key]
@@ -161,27 +161,30 @@ namespace OrderManagement
         private List<OrderDetails> itemList = new List<OrderDetails>();
 
         public Order() { }
-        public Order(int id, Customer customer, string address, OrderDetails item)
-        {
-            this.orderId = id;
-            this.customer = customer;
-            this.address = address;
-            itemList.Add(item);
-        }
+
         public int OrderId { get => orderId; set => orderId = value; }
         public Customer Customer { get => customer; set => customer = value; }
+        public int CustomerId { get; set; }
         public string Address { get => address; set => address = value; }
+        public string CustomerName { get { return Customer != null ? Customer.Name : ""; } }
         public List<OrderDetails> ItemList { get => itemList; set => itemList = value; }
         public double Amount
         {
             get
             {
-                double amount = 0;
-                foreach (OrderDetails item in itemList)
+                if(itemList != null)
                 {
-                    amount += item.Amount;
+                    double amount = 0;
+                    foreach (OrderDetails item in itemList)
+                    {
+                        amount += item.Amount;
+                    }
+                    return amount;
                 }
-                return amount;
+                else
+                {
+                    return 0;
+                }
             }
         }
 
@@ -220,16 +223,13 @@ namespace OrderManagement
     }
     public class OrderService
     {
-        private List<Order> orderList = new List<Order>();
-
-        public List<Order> OrderList { get => orderList; }
-
         public OrderService() { }
 
         public void Add(Order order)
         {
             using (var db = new OrderContext())
             {
+                FixOrder(order);
                 db.Orders.Add(order);
                 db.SaveChanges();
             }
@@ -242,6 +242,7 @@ namespace OrderManagement
                 var order = db.Orders.Include("ItemList").FirstOrDefault(o => o.OrderId == orderId);
                 if(order != null)
                 {
+                    db.Items.RemoveRange(order.ItemList);
                     db.Orders.Remove(order);
                     db.SaveChanges();
                 }
@@ -252,24 +253,9 @@ namespace OrderManagement
         {
             using (var db = new OrderContext())
             {
-                var oldOrder = db.Orders.Include(o => o.ItemList).FirstOrDefault(o => o.OrderId == orderId);
-
-                if (oldOrder != null)
-                {
-                    oldOrder.ItemList = order.ItemList;
-                    oldOrder.Customer = order.Customer;
-                    oldOrder.Address = order.Address;
-                    db.SaveChanges();
-                }
+                Delete(orderId);
+                Add(order);
             }
-            /*int orderIndex = orderList.FindIndex(o => o.Id == orderId);
-            if (orderIndex == -1)
-            {
-                throw new OrderException("添加失败：订单不存在");
-            }
-            OrderList.RemoveAt(orderIndex);
-            OrderList.Add(order);
-            OrderList.Sort();*/
         }
 
         public List<Order> QueryAll()
@@ -333,22 +319,20 @@ namespace OrderManagement
             }
         }
 
-        public void Sort()
-        {
-            orderList.Sort((Order p1, Order p2) => p1.CompareTo(p2));
-        }
-
-        public void Sort(Comparison<Order> comparison)
-        {
-            orderList.Sort(comparison);
-        }
-
         public void Export(string fileName)
         {
-            XmlSerializer xmlSerializier = new XmlSerializer(typeof(List<Order>));
-            using (FileStream fs = new FileStream(fileName, FileMode.Create))
+            using (var db = new OrderContext())
             {
-                xmlSerializier.Serialize(fs, orderList);
+                var query = db.Orders
+                    .Include(o => o.Customer)
+                    .Include(o => o.ItemList)
+                    .Include(o => o.ItemList.Select(i => i.Goods)).ToList();
+                XmlSerializer xmlSerializier = new XmlSerializer(typeof(List<Order>));
+                using (FileStream fs = new FileStream(fileName, FileMode.Create))
+                {
+                    xmlSerializier.Serialize(fs,query);
+                }
+
             }
         }
 
@@ -359,12 +343,45 @@ namespace OrderManagement
             {
                 List<Order> orders = (List<Order>)xmlSerializier.Deserialize(fs);
                 if (orders == null) return;
-                orderList = orderList.Union(orders).ToList();
-                orderList.Sort();
+                using (var db = new OrderContext())
+                {
+                    foreach (var order in orders)
+                    {
+                        if (! db.Orders.Any(o => o.OrderId == order.OrderId))
+                        {
+                            Add(order);
+                        }
+                    }
+                }
             }
         }
 
-        public Goods queryGoods(string name)
+        private void FixOrder(Order order)
+        {
+            order.CustomerId = order.Customer.CustomerId;
+            order.Customer = null;
+            foreach (var item in order.ItemList)
+            {
+                item.GoodsId = item.Goods.GoodsId;
+                item.Goods = null;
+            }
+        }
+    }
+
+    public class CustomerService
+    {
+        public List<Customer> GetCustomers()
+        {
+            using (var db = new OrderContext())
+            {
+                return db.Customer.ToList();
+            }
+        }
+    }
+
+    public class GoodService
+    {
+        public Goods QueryGoods(string name)
         {
             using (var db = new OrderContext())
             {
@@ -373,6 +390,7 @@ namespace OrderManagement
             }
         }
     }
+
 
     public class OrderException : ApplicationException
     {

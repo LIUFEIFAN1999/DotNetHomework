@@ -33,11 +33,11 @@ namespace OrderWindowApp
             this.button_createOrder = new System.Windows.Forms.Button();
             this.label_tips = new System.Windows.Forms.Label();
             this.tableLayoutPanel_info = new System.Windows.Forms.TableLayoutPanel();
-            this.textBox_customer = new System.Windows.Forms.TextBox();
             this.textBox_address = new System.Windows.Forms.TextBox();
             this.label_customer = new System.Windows.Forms.Label();
             this.label_address = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.cbx_customer = new System.Windows.Forms.ComboBox();
             this.tableLayoutPanel_info.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -105,12 +105,12 @@ namespace OrderWindowApp
             this.tableLayoutPanel_info.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel_info.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel_info.Controls.Add(this.button_createOrder, 4, 0);
-            this.tableLayoutPanel_info.Controls.Add(this.textBox_customer, 1, 0);
             this.tableLayoutPanel_info.Controls.Add(this.textBox_address, 3, 0);
             this.tableLayoutPanel_info.Controls.Add(this.label_customer, 0, 0);
             this.tableLayoutPanel_info.Controls.Add(this.label_address, 2, 0);
             this.tableLayoutPanel_info.Controls.Add(this.label_tips, 6, 0);
             this.tableLayoutPanel_info.Controls.Add(this.label1, 5, 0);
+            this.tableLayoutPanel_info.Controls.Add(this.cbx_customer, 1, 0);
             this.tableLayoutPanel_info.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel_info.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.tableLayoutPanel_info.Location = new System.Drawing.Point(0, 0);
@@ -119,15 +119,6 @@ namespace OrderWindowApp
             this.tableLayoutPanel_info.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 37F));
             this.tableLayoutPanel_info.Size = new System.Drawing.Size(1228, 37);
             this.tableLayoutPanel_info.TabIndex = 3;
-            // 
-            // textBox_customer
-            // 
-            this.textBox_customer.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.textBox_customer.Location = new System.Drawing.Point(133, 8);
-            this.textBox_customer.Name = "textBox_customer";
-            this.textBox_customer.Size = new System.Drawing.Size(100, 21);
-            this.textBox_customer.TabIndex = 3;
-            this.textBox_customer.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // textBox_address
             // 
@@ -174,6 +165,15 @@ namespace OrderWindowApp
             this.label1.Text = "Total:";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
+            // cbx_customer
+            // 
+            this.cbx_customer.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.cbx_customer.FormattingEnabled = true;
+            this.cbx_customer.Location = new System.Drawing.Point(123, 8);
+            this.cbx_customer.Name = "cbx_customer";
+            this.cbx_customer.Size = new System.Drawing.Size(121, 20);
+            this.cbx_customer.TabIndex = 8;
+            // 
             // Form_items
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -197,10 +197,10 @@ namespace OrderWindowApp
         private System.Windows.Forms.Button button_createOrder;
         private System.Windows.Forms.Label label_tips;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel_info;
-        private System.Windows.Forms.TextBox textBox_customer;
         private System.Windows.Forms.TextBox textBox_address;
         private System.Windows.Forms.Label label_customer;
         private System.Windows.Forms.Label label_address;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ComboBox cbx_customer;
     }
 }

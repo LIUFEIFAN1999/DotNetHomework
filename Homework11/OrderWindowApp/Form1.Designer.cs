@@ -377,7 +377,6 @@ namespace OrderWindowApp
         private System.Windows.Forms.Button button_import;
         private System.Windows.Forms.Button button_export;
         internal System.Windows.Forms.BindingSource orderbindingSource;
-        private System.Windows.Forms.DataGridViewTextBoxColumn idDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn OrderId;
         private System.Windows.Forms.DataGridViewTextBoxColumn customerDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn addressDataGridViewTextBoxColumn;

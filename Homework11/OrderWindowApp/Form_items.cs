@@ -17,6 +17,7 @@ namespace OrderWindowApp
     {
         public List<OrderDetails> itemList = new List<OrderDetails>();
         public OrderService orderService = new OrderService();
+        public CustomerService customerService = new CustomerService();
         public int id;
 
         public string Customer { get; set; }
@@ -36,7 +37,9 @@ namespace OrderWindowApp
 
         private void Form_items_Load(object sender, EventArgs e)
         {
-            textBox_customer.DataBindings.Add("Text", this, "Customer");
+            cbx_customer.DataSource = customerService.GetCustomers();
+            cbx_customer.DisplayMember = "Name";
+            cbx_customer.DataBindings.Add("Text", this, "Customer");
             textBox_address.DataBindings.Add("Text", this, "Address");
             label_tips.DataBindings.Add("Text", this, "Amount");
             Display();
@@ -88,12 +91,12 @@ namespace OrderWindowApp
         private void button_createOrder_Click(object sender, EventArgs e)
         {
             Order order = new Order();
-            order.Customer = new Customer(Customer);
+            order.Customer = (Customer)cbx_customer.SelectedItem;
             order.Address = Address;
 
-            if(Customer == null || Address == null)
+            if (Customer == "" || Address == null)
             {
-                MessageBox.Show("创建失败！\n请补全收货信息");
+                MessageBox.Show("创建失败！\n请补全订单信息！");
                 return;
             }
 
@@ -104,8 +107,8 @@ namespace OrderWindowApp
                 CheckBox checkBox = (CheckBox)tableLayoutPanel_items.GetControlFromPosition(3 * index % 12, index / 4);
                 if(checkBox.Checked == true)
                 {
-                    OrderDetails item = new OrderDetails(itemList[index].Count, itemList[index].Goods.GoodsId);
-                    order.ItemList.Add(item);
+                    OrderDetails selectedItem = itemList[index];
+                    order.ItemList.Add(selectedItem);
                     itemList[index] = null;
                 }
             }
@@ -135,7 +138,6 @@ namespace OrderWindowApp
                 }
                 else
                 {
-                    //修改订单不改变id，而创建order时id为newId，需要改回原来id
                     order.OrderId = id;
                     orderService.Modify(id, order);
                 }

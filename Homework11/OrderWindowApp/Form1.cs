@@ -20,21 +20,6 @@ namespace OrderWindowApp
     public partial class Form_orderList : Form
     {
         public List<OrderDetails> itemList = new List<OrderDetails>();
-
-        private Customer customer1;
-        private Customer customer2;
-        private Goods pc;
-        private Goods guitar;
-        private Goods shirt;
-        private Goods bag;
-        private OrderDetails item0;
-        private OrderDetails item1;
-        private OrderDetails item2;
-        private OrderDetails item3;
-        private Order order0;
-        private Order order1;
-        private Order order2;
-        private Order order3;
         private OrderService orderService;
         public List<string> selectList = new List<string> { "All", "Id", "Customer", "Product", "Amount" };
 
@@ -85,34 +70,8 @@ namespace OrderWindowApp
         {
             textBox_query.DataBindings.Add("Text", this, "QueryString");
             comboBox_query.DataSource = selectList;
-
-            customer1 = new Customer(1, "LiuFeifan", "18812345678");
-            customer2 = new Customer(2, "Liuxia", "18202939333");
-
-            /*pc = new Goods("computer", "Lenovo 16G 512G i5", 4325.99, 1000);
-            pc.GoodsId = 1;
-            guitar = new Goods("guitar", "Mesopotamia S200 41", 2680, 2000);
-            shirt = new Goods("T-Shirt", "Li-Ning 2021", 129.98, 50);
-            bag = new Goods("handbag", "Dior Latest", 10000, 500);*/
-
-            item0 = new OrderDetails(1, 1);
-            /*item1 = new OrderDetails(guitar, 2);
-            item2 = new OrderDetails(shirt, 3);
-            item3 = new OrderDetails(bag, 1);*/
-
-            //item0.Goods = null;
-            order0 = new Order(20, customer1, "Wuhan", item0);
-            order0.ItemList.Add(item0);
-            order1 = new Order(21, customer2, "wuhan", item0);
-            /*order1 = new Order(2, customer2, "Nanchang", item2);
-            order2 = new Order(3, customer1, "Shanghai", item1);
-            order3 = new Order(4, customer2, "Beijing", item3);*/
-
             orderService = new OrderService();
-            /*orderService.Add(order0);
-            orderService.Add(order1);*/
-            /* orderService.Add(order2);
-             orderService.Add(order3);*/
+
         }
 
         private void button_add_Click(object sender, EventArgs e)
@@ -152,9 +111,6 @@ namespace OrderWindowApp
         //刷新订单列表
         private void button_orderList_Click(object sender, EventArgs e)
         {
-            List<Order> orderList = orderService.QueryAll();
-
-            Console.WriteLine(orderList[0].Customer);
             orderbindingSource.DataSource = orderService.QueryAll();
         }
 
@@ -170,7 +126,7 @@ namespace OrderWindowApp
                     MessageBox.Show("导入成功！");
 
                     comboBox_query.SelectedIndex = 0;
-                    orderbindingSource.DataSource = orderService.OrderList;
+                    orderbindingSource.DataSource = orderService.QueryAll();
                 }
             }
         }
@@ -209,7 +165,7 @@ namespace OrderWindowApp
             orderForm.MdiParent = this;
             orderForm.orderService = this.orderService;
             orderForm.itemList = order.ItemList;
-            orderForm.Customer = order.Customer.Name;
+            orderForm.Customer = order.CustomerName;
             orderForm.Address = order.Address;
             orderForm.id = order.OrderId;
             orderForm.Show();
